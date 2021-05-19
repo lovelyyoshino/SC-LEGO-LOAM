@@ -41,7 +41,7 @@ cd ~/catkin_ws/src/SC-LEGO-LOAM/SC-LeGO-LOAM/LeGO-LOAM/dataset/
 unzip 2011_09_30_0027.zip
 ```
 
-**5. ** 运行代码
+**5.** 运行代码
 
 ```bash
 #实时运行
