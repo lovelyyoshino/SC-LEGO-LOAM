@@ -1,13 +1,13 @@
 # SC-LEGO-LOAM
 本项目解读了SC-LeGO-LOAM的相关代码，具体操作步骤如下：
 
-**1. Ubuntu** and **ROS**
+**1.Ubuntu** and **ROS**
 
 Ubuntu 64-bit 18.04.
 
 ROS Melodic. [ROS Installation](http://wiki.ros.org/ROS/Installation)
 
-**2. ** 安装**GTSAM**
+**2.** 安装 **GTSAM**
 
 最好安装4.0.0-alpha2的GTSAM版本
 
@@ -20,7 +20,7 @@ cmake ..
 sudo make install
 ```
 
-**3. ** 安装**SC-LeGO-LOAM**
+**3.** 安装 **SC-LeGO-LOAM**
 
 ```bash
 cd ~/catkin_ws/src
@@ -30,7 +30,7 @@ catkin_make
 source devel/setup.bash
 ```
 
-**4. ** 下载**KITTI数据集**
+**4.** 下载 **KITTI数据集**
 
 下载[KITTI sequence 05](https://drive.google.com/open?id=18ilF7GZDg2tmT6sD5pd1RjqO0XJLn9Mv) 或者 [KITTI sequence 07](https://drive.google.com/open?id=1VpoKm7f4es4ISQ-psp4CV3iylcA4eu0-)，这两个都是标准的ros的bag包，如果自己需要可以使用kitti2bag来自行转换
 
@@ -51,4 +51,4 @@ rosbag play 2011_09_30_0027.bag
 roslaunch lego_loam map_loader.launch
 ```
 
-![1621391821](https://i.loli.net/2021/05/19/GOBXICjo2wbZen6.png)
+![1621391821](https://github.com/lovelyyoshino/SC-LEGO-LOAM/blob/main/image/1621391821(1).jpg)
