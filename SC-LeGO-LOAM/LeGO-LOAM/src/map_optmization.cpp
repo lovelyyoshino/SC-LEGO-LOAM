@@ -98,25 +98,36 @@ namespace lego_loam {
             newLaserCloudSurfLast = false;
             newLaserCloudOutlierLast = false;
             newLaserOdometry = false;
-
+             // 互斥锁
             std::lock_guard<std::mutex> lock(mtx);
             if (timeLaserOdometry - timeLastProcessing >= mappingProcessInterval) {
                 timeLastProcessing = timeLaserOdometry;
-
+                // 应该是根据当前的odo pose,以及上一次进行map_optimation前后的pose(即漂移),计算目前最优的位姿估计
+                // 保存到transformTobeMapped
                 transformAssociateToMap();  //  坐标系->map
-
-                extractSurroundingKeyFrames();  //  暂时不懂
-
+                // 确定周围的关键帧的索引,点云保存到recentCorner等，地图拼接保存到laserCloudCornerFromMap等
+                extractSurroundingKeyFrames(); 
+                // 对当前帧原始点云,角点,面点,离群点进行降采样
                 downsampleCurrentScan();
-
+                // 进行scan-to-map位姿优化,并为下一次做准备
+                // 最优位姿保存在和transformAftMapped中，同时transformBfeMapped中保存了优化前的位姿，两者的差距就是激光odo和最优位姿之间偏移量的估计
                 scan2MapOptimization();
+                
+                // 到这里，虽然在scan-to-scan之后，又进行了scan-to-map的匹配，但是并未出现回环检测和优化，
+                // 所以依然是一个误差不断积累的里程计的概念
 
+                // 如果距离上一次保存的关键帧欧式距离最够大，需要保存当前关键帧
+                // 计算与上一关键帧之间的约束，这种约束可以理解为局部的小回环，加入后端进行优化，
+                // 将优化的结果保存作为关键帧位姿，同步到scan-to-map优化环节
+                // 为了检测全局的大回环,还需要生成当前关键帧的ScanContext
                 saveKeyFramesAndFactor();
-
+                
+                // 如果另一个线程中isam完成了一次全局位姿优化,那么对关键帧中cloudKeyPoses3D/6D的位姿进行修正
                 correctPoses();
-
+                
+                // 发布优化后的位姿,及tf变换
                 publishTF();
-
+                // 发布所有关键帧位姿,当前的局部面点地图及当前帧中的面点/角点
                 publishKeyPosesAndFrames();
 
                 clearCloud();
