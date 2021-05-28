@@ -10,6 +10,8 @@ namespace lego_loam {
 
         InitParams();
         //  subscriber
+        // 以下几个回调函数,接收原始点云,面点,角点,离群点,以及里程计位姿保存在成员变量中
+        // 这里的原始的点云，是没有经过分割和提取的，雷达直接发出来的
         subLaserCloudRaw = nh.subscribe<sensor_msgs::PointCloud2>(pointCloudTopic, 2,
                                                                   &mapOptimization::laserCloudRawHandler, this);
         subLaserCloudCornerLast = nh.subscribe<sensor_msgs::PointCloud2>("/laser_cloud_corner_last", 2,
@@ -21,8 +23,10 @@ namespace lego_loam {
         subOutlierCloudLast = nh.subscribe<sensor_msgs::PointCloud2>("/outlier_cloud_last", 2,
                                                                      &mapOptimization::laserCloudOutlierLastHandler,
                                                                      this);
+        // odo输出的位姿保存到transformSum中
         subLaserOdometry = nh.subscribe<nav_msgs::Odometry>("/laser_odom_to_init", 5,
                                                             &mapOptimization::laserOdometryHandler, this);
+        // 保存IMU输出的时间/roll/pitch
         subImu = nh.subscribe<sensor_msgs::Imu>(imuTopic, 50, &mapOptimization::imuHandler, this);
 
         //  publisher
@@ -83,7 +87,8 @@ namespace lego_loam {
     }
 
     void mapOptimization::run() {
-        //  有新数据进来，才执行后续
+        // 有新数据进来，才执行后续
+        // 如果成员变量里接收到了新的数据
         if (newLaserCloudCornerLast && std::abs(timeLaserCloudCornerLast - timeLaserOdometry) < 0.005 &&
             newLaserCloudSurfLast && std::abs(timeLaserCloudSurfLast - timeLaserOdometry) < 0.005 &&
             newLaserCloudOutlierLast && std::abs(timeLaserCloudOutlierLast - timeLaserOdometry) < 0.005 &&
@@ -1636,7 +1641,7 @@ int main(int argc, char **argv) {
         // while ( 1 )
     {
         ros::spinOnce();
-
+        // 循环进行scan-to-map的优化,保存关键帧，计算回环检测所需要的ScanContext
         MO.run();
 
         rate.sleep();
